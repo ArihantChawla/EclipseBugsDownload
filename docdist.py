@@ -1,13 +1,18 @@
-#!/usr/bin/python
+import pandas as pd
+import datetime
+from sklearn.feature_extraction.text import TfidfVectorizer
 import math
 import string
 import sys
+
+df = pd.read_csv('preprocessed.csv')
 
 translation_table = str.maketrans(string.punctuation+'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                                      " "*len(string.punctuation)+'abcdefghijklmnopqrstuvwxyz')
 
 
 def get_words_from_text(text):
+    text = str(text)
     text = text.translate(translation_table)
     word_list = text.split()
     return word_list
@@ -54,15 +59,17 @@ def vector_angle(D1,D2):
     """
     numerator = inner_product(D1,D2)
     denominator = math.sqrt(inner_product(D1,D1)*inner_product(D2,D2))
-    return math.acos(numerator/denominator)
+    try:  
+      return (numerator/denominator)
+    except:
+      return 0
+      pass
 
-#main():
 
-text_1 = "[e4] ToolItems with type check should be rendered as ToggleItems"
-text_2 = "[e4] ThemeManager fails if no theme configured with IOOB as should type check"
+text_1 = df['Summary'][0]
+a = ""
 sorted_word_list_1 = word_frequencies_for_text(text_1)
-sorted_word_list_2 = word_frequencies_for_text(text_2)
-distance = vector_angle(sorted_word_list_1,sorted_word_list_2)
-angle = math.radians(distance)
-print(math.cos(angle))
-  
+for text_2 in df['Summary']:
+  sorted_word_list_2 = word_frequencies_for_text(text_2)
+  distance = vector_angle(sorted_word_list_1,sorted_word_list_2)
+  a = a + str(distance) + " "
